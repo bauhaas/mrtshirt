@@ -14,25 +14,12 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Retours
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Le cas est plutôt sympa dans son ensemble. Je pense que ça permets de voir déjà pas mal de chose tant en terme de design que de la qualité du code et la façon de l'organiser.
+- Je n'ai pas pris le temps de passer en typescript.
+- Je me suis efforcé d'abstraire un maximum de choses pour que le code soit le plus lisible possible. Cependant je pense qu'à certains endroits j'aurai pu faire encore un peu mieux et être plus concis. Il est possible qu'il reste quelques morceaux de code qui soient dupliqués.
+- Point sur lequel j'ai pas eu forcément de faire tout comme je le désirais, c'est le style avec tailwind. Je n'ai pas utilisé de lib externe. La responsivite est plus que moyenne du coup. Et il y à également trop de style inline à mon goût. Je suis plus habitué à utiliser un système de variants quand on a le temps via Stitches (https://stitches.dev/) ou cva (https://cva.style/docs)
+- Pour l'affichage des types, je n'ai remarqué que vers la fin qu'il fallait les afficher au dessus de l'input et non en dessous.
