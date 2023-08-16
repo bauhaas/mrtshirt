@@ -1,118 +1,195 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Trash2, XCircle } from "lucide-react";
+import Header from "@/components/Header";
+import { useFetchCards } from "@/hooks/useFetchCards";
+import { useRarityContext } from "@/contexts/rarityContext";
+import CardList from "./components/CardList";
+import SearchField from "./components/SearchField";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
+
+function TypeAutocomplete({ options, selectedTypes, onSelect }) {
+  const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const handleInputChange = (event) => {
+    const newValue = event.target.value;
+    setInputValue(newValue);
+  };
+
+  const handleSelectOption = (option) => {
+    if (!selectedTypes.includes(option)) {
+      onSelect([...selectedTypes, option]);
+      setInputValue("");
+    }
+  };
+
+  const filteredOptions = options.filter(
+    (option) =>
+      option.toLowerCase().includes(inputValue.toLowerCase()) &&
+      !selectedTypes.includes(option)
+  );
+
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap items-center mb-2">
+        {selectedTypes.map((type) => (
+          <span
+            key={type}
+            className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+          >
+            {type}
+            <button
+              type="button"
+              onClick={() => onSelect(selectedTypes.filter((t) => t !== type))}
+              className="ml-2 text-red-600 hover:text-red-800"
+            >
+              <XCircle />
+            </button>
+          </span>
+        ))}
+      </div>
+      <div className="relative">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          className="border rounded px-2 py-1"
+        />
+        {showSuggestions && (
+          <div className="absolute bg-white border rounded shadow w-full">
+            {filteredOptions.map((option) => (
+              <div
+                key={option}
+                onClick={() => handleSelectOption(option)}
+                className="px-2 py-1 cursor-pointer hover:bg-gray-500 rounded"
+              >
+                {option}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CustomAutocomplete({ options, value, onChange }) {
+  const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(inputValue.toLowerCase())
+  );
+
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+    setShowSuggestions(true);
+  };
+
+  const handleOptionClick = (option) => {
+    setInputValue(option);
+    onChange(option);
+    setShowSuggestions(false);
+  };
+
+  const handleClearClick = () => {
+    setInputValue(""); // Clear the input field
+    onChange(""); // Call the onChange with an empty value to reset the selected rarity
+  };
+
+  return (
+    <div className="relative inline-block">
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        className="border rounded px-2 py-1"
+      />
+      {showSuggestions && (
+        <ul className="absolute z-10 mt-1 bg-white border rounded shadow">
+          {filteredOptions.map((option) => (
+            <li
+              key={option}
+              onClick={() => handleOptionClick(option)}
+              className="px-2 py-1 cursor-pointer hover:bg-gray-100"
+            >
+              {option}
+            </li>
+          ))}
+        </ul>
+      )}
+      {value && (
+        <button
+          type="button"
+          onClick={handleClearClick}
+          className="absolute right-0 top-0 mt-1 mr-2"
+        >
+          <Trash2 />
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
+  const [searchRarity, setSearchRarity] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const { cards, availableTypes } = useFetchCards();
+
+  const rarities = useRarityContext();
+
+  const filteredCards = cards.filter((card) => {
+    const matchesType =
+      selectedTypes.length === 0 ||
+      selectedTypes.some((type) => card.types.includes(type)); // Use `some` instead of `every`
+
+    const matchesRarity = searchRarity === "" || card.rarity === searchRarity;
+    const matchesName =
+      searchName === "" ||
+      card.name.toLowerCase().includes(searchName.toLowerCase());
+
+    return matchesType && matchesRarity && matchesName;
+  });
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className="bg-slate-600 min-h-screen">
+      <Header />
+      <div className="flex flex-row items-center min-h-fit justify-center gap-2 min-w-fit ">
+        <SearchField htmlFor="searchType" label="Type">
+          <TypeAutocomplete
+            options={availableTypes}
+            selectedTypes={selectedTypes}
+            onSelect={(newSelectedTypes) => setSelectedTypes(newSelectedTypes)}
+          />
+        </SearchField>
+        <SearchField htmlFor="searchRarity" label="Rarity">
+          <CustomAutocomplete
+            options={rarities.map((rarity) => rarity.value)}
+            value={searchRarity}
+            onChange={(newValue) => setSearchRarity(newValue)}
+          />
+        </SearchField>
+        <SearchField htmlFor="searchName" label="Name">
+          <input
+            type="text"
+            id="searchName"
+            value={searchName}
+            onChange={(event) => setSearchName(event.target.value)}
+            className="border rounded px-2 py-1"
+          />
+        </SearchField>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <CardList filteredCards={filteredCards} />
+    </div>
+  );
 }
