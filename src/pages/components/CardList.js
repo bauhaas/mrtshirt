@@ -12,24 +12,22 @@ const CardList = ({ filteredCards }) => {
   }
 
   return (
-    <ul className="flex flex-row flex-wrap flex-start gap-4 p-4 h-full w-full">
+    <ul className="flex flex-row flex-wrap  justify-center flex-start gap-4 p-4 h-full w-full items-center">
       {filteredCards.map((card) => (
         <li
           key={card.id}
-          className="cursor-pointer h-80 p-2 rounded-lg shadow-md bg-gradient-to-tr from-yellow-700 from-10% via-yellow-200 via-50% to-yellow-700 to-90%"
-          style={{ flex: `0 0 calc(100% / 5 - 1rem)` }}
+          className="cursor-pointer h-80 p-2 rounded-lg shadow-md bg-gradient-to-tr from-yellow-700 from-10% via-yellow-200 via-50% to-yellow-700 to-90% flex-none w-1/3 md:w-1/4 lg:w-1/6 xl:w-1/8"
         >
-          <div className="h-full w-full flex items-center flex-col bg-gradient-to-tr from-slate-400 from-10% via-slate-100 via-50% to-slate-400 to-90%">
-            <p className="font-bold text-lg">{card.name}</p>
-            <p>Type: {card.type}</p>
-            <p className="font-bold text-xs bg-white p-2 rounded-full self-end">
-              {card.number}
-            </p>
+          <div className="h-full w-full flex flex-col items-center bg-gradient-to-tr from-slate-400 from-10% via-slate-100 via-50% to-slate-400 to-90% p-4">
+            <div className="flex flex-col items-center flex-grow">
+              <p className="font-bold text-lg min-w-fit">{card.name}</p>
+              <p className="font-light text-sm min-w-fit">{card.type}</p>
+            </div>
             <p
-              className="p-2 rounded-lg min-w-fit w-24 text-center text-white"
+              className="p-2 rounded-lg text-center text-white min-w-fit w-24"
               style={{
                 backgroundColor: rarities.find(
-                  (rarity) => rarity.value === card.rarity
+                  (rarity) => rarity.value === card.rarity,
                 )?.color,
               }}
             >

@@ -9,7 +9,7 @@ export function useFetchCards() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://api.magicthegathering.io/v1/cards"
+          "https://api.magicthegathering.io/v1/cards",
         );
         const fetchedCards = response.data.cards;
         const types = new Set();

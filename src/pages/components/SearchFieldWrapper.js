@@ -1,4 +1,4 @@
-const SearchField = ({ htmlFor, label, children }) => (
+const SearchFieldWrapper = ({ htmlFor, label, children }) => (
   <div className="flex flex-row gap-2 justify-between items-center">
     <label htmlFor={htmlFor} className="text-white">
       {label}
@@ -7,4 +7,4 @@ const SearchField = ({ htmlFor, label, children }) => (
   </div>
 );
 
-export default SearchField;
+export default SearchFieldWrapper;
