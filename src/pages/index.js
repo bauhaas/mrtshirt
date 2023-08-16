@@ -35,51 +35,54 @@ function TypeAutocomplete({ options, selectedTypes, onSelect }) {
 
   return (
     <div className="relative">
-      <div className="flex flex-wrap items-center mb-2">
-        {selectedTypes.map((type) => (
-          <span
-            key={type}
-            className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-          >
-            {type}
-            <button
-              type="button"
-              onClick={() => onSelect(selectedTypes.filter((t) => t !== type))}
-              className="ml-2 text-red-600 hover:text-red-800"
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={() => setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+        className="border rounded px-2 py-1"
+      />
+      {showSuggestions && (
+        <div className="absolute bg-white border rounded shadow w-full">
+          {filteredOptions.map((option) => (
+            <div
+              key={option}
+              onClick={() => handleSelectOption(option)}
+              className="px-2 py-1 cursor-pointer hover:bg-gray-500 rounded"
             >
-              <XCircle />
-            </button>
-          </span>
-        ))}
-      </div>
-      <div className="relative">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={() => setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-          className="border rounded px-2 py-1"
-        />
-        {showSuggestions && (
-          <div className="absolute bg-white border rounded shadow w-full">
-            {filteredOptions.map((option) => (
-              <div
-                key={option}
-                onClick={() => handleSelectOption(option)}
-                className="px-2 py-1 cursor-pointer hover:bg-gray-500 rounded"
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function CustomAutocomplete({ options, value, onChange }) {
+function SelectedTypes({ selectedTypes, onSelect }) {
+  return (
+    <div className="flex flex-wrap items-center mb-2 group">
+      {selectedTypes.map((type) => (
+        <span
+          key={type}
+          className="inline-flex items-center bg-gray-200 group-hover:bg-gray-400 group-hover:text-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+        >
+          {type}
+          <button
+            type="button"
+            onClick={() => onSelect(selectedTypes.filter((t) => t !== type))}
+            className="ml-2 text-red-500 group-hover:text-red-500"
+          >
+            <XCircle />
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function RarityField({ options, value, onChange }) {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -110,7 +113,7 @@ function CustomAutocomplete({ options, value, onChange }) {
         value={inputValue}
         onChange={handleInputChange}
         onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
         className="border rounded px-2 py-1"
       />
       {showSuggestions && (
@@ -163,7 +166,7 @@ export default function Home() {
   return (
     <div className="bg-slate-600 min-h-screen">
       <Header />
-      <div className="flex flex-row items-center min-h-fit justify-center gap-2 min-w-fit ">
+      <div className="flex flex-row items-center min-h-fit justify-center gap-2 min-w-fit m-2 ">
         <SearchField htmlFor="searchType" label="Type">
           <TypeAutocomplete
             options={availableTypes}
@@ -172,7 +175,7 @@ export default function Home() {
           />
         </SearchField>
         <SearchField htmlFor="searchRarity" label="Rarity">
-          <CustomAutocomplete
+          <RarityField
             options={rarities.map((rarity) => rarity.value)}
             value={searchRarity}
             onChange={(newValue) => setSearchRarity(newValue)}
@@ -188,6 +191,10 @@ export default function Home() {
           />
         </SearchField>
       </div>
+      <SelectedTypes
+        selectedTypes={selectedTypes}
+        onSelect={setSelectedTypes}
+      />
 
       <CardList filteredCards={filteredCards} />
     </div>
